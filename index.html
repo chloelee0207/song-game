@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sing the Word! 🎤</title>
+  <style>
+    :root {
+      --bg1: #ff9a9e;
+      --bg2: #fad0c4;
+      --accent: #6d28d9;
+      --ink: #2b2b2b;
+      --card: rgba(255, 255, 255, 0.85);
+      --muted: #555;
+      --faint: #888;
+      --btn-text: #fff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg1: #3b1d5e;
+        --bg2: #7a2e6b;
+        --accent: #fbbf24;
+        --ink: #f5f0ff;
+        --card: rgba(28, 18, 44, 0.72);
+        --muted: #cbb8e6;
+        --faint: #9d8bbd;
+        --btn-text: #2b1500;
+      }
+    }
+    :root[data-theme="light"] {
+      --bg1: #ff9a9e; --bg2: #fad0c4; --accent: #6d28d9; --ink: #2b2b2b;
+      --card: rgba(255, 255, 255, 0.85); --muted: #555; --faint: #888; --btn-text: #fff;
+    }
+    :root[data-theme="dark"] {
+      --bg1: #3b1d5e; --bg2: #7a2e6b; --accent: #fbbf24; --ink: #f5f0ff;
+      --card: rgba(28, 18, 44, 0.72); --muted: #cbb8e6; --faint: #9d8bbd; --btn-text: #2b1500;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      overflow-x: hidden;
+    }
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      border-radius: 28px;
+      padding: 40px 32px 44px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 6px; text-wrap: balance; }
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 26px;
+      line-height: 1.45;
+      text-wrap: balance;
+    }
+    .word {
+      font-size: clamp(2.4rem, 12vw, 4.2rem);
+      font-weight: 800;
+      color: var(--accent);
+      min-height: 1.2em;
+      margin: 18px 0 30px;
+      letter-spacing: 1px;
+      word-break: break-word;
+      transition: transform 0.15s ease;
+    }
+    .word.pop { transform: scale(1.12); }
+    button {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--btn-text);
+      background: var(--accent);
+      border: none;
+      border-radius: 999px;
+      padding: 18px 40px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(1px) scale(0.98); }
+    button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+    .hint { margin-top: 26px; font-size: 0.85rem; color: var(--muted); }
+    .count { margin-top: 10px; font-size: 0.8rem; color: var(--faint); }
+    @media (prefers-reduced-motion: reduce) {
+      .word, button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎤 Sing the Word!</h1>
+    <p class="subtitle">Press the button, think of a song with that word in it — first to sing it wins a point! 🎶</p>
+    <div class="word" id="word">Ready?</div>
+    <button id="btn">Give me a word!</button>
+    <p class="hint">🧺 Picnic edition — have fun!</p>
+    <p class="count" id="count"></p>
+  </div>
+
+  <script>
+    const words = [
+      "love", "night", "sun", "rain", "dream", "fire", "heart", "dance",
+      "baby", "moon", "star", "home", "road", "river", "sky", "gold",
+      "summer", "winter", "sweet", "wild", "young", "free", "light", "dark",
+      "girl", "boy", "friend", "time", "money", "world", "day", "away",
+      "run", "fly", "cry", "smile", "kiss", "hold", "wait", "fall",
+      "blue", "red", "green", "yellow", "black", "white", "color", "shine",
+      "ocean", "sea", "mountain", "city", "town", "street", "door", "window",
+      "morning", "midnight", "tonight", "yesterday", "tomorrow", "forever", "again", "beautiful",
+      "happy", "sad", "angel", "devil", "heaven", "hell", "soul", "body",
+      "hand", "eyes", "lips", "hair", "face", "name", "voice", "song",
+      "music", "radio", "party", "weekend", "friday", "sunday", "holiday", "vacation",
+      "coffee", "wine", "whiskey", "sugar", "honey", "candy", "chocolate", "cherry",
+      "flower", "rose", "tree", "garden", "wind", "storm", "thunder", "lightning",
+      "snow", "ice", "cold", "warm", "hot", "cool", "burn", "melt",
+      "car", "train", "plane", "boat", "ride", "drive", "walk", "run",
+      "phone", "letter", "message", "call", "goodbye", "hello", "stay", "leave",
+      "king", "queen", "crown", "diamond", "silver", "treasure", "magic", "wonder",
+      "hope", "faith", "trust", "lie", "truth", "secret", "story", "memory",
+      "mother", "father", "brother", "sister", "family", "lover", "stranger", "hero",
+      "war", "peace", "fight", "win", "lose", "game", "play", "chance",
+      "prayer", "bell", "candle", "smoke", "shadow", "ghost",
+      "beach", "sand", "wave", "island", "desert", "jungle", "forest", "valley",
+      "dollar", "penny", "rich", "poor", "work", "boss", "job", "school",
+      "clock", "hour", "minute", "second", "year", "season", "spring", "autumn"
+    ];
+
+    const wordEl = document.getElementById("word");
+    const btn = document.getElementById("btn");
+    const countEl = document.getElementById("count");
+    let count = 0;
+    let last = null;
+
+    function randomWord() {
+      let w;
+      do {
+        w = words[Math.floor(Math.random() * words.length)];
+      } while (w === last && words.length > 1);
+      last = w;
+      return w;
+    }
+
+    btn.addEventListener("click", () => {
+      wordEl.textContent = randomWord();
+      wordEl.classList.remove("pop");
+      void wordEl.offsetWidth;
+      wordEl.classList.add("pop");
+      count++;
+      countEl.textContent = "Words drawn: " + count;
+      btn.textContent = "Next word! 🎲";
+    });
+  </script>
+</body>
+</html>
